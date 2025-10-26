@@ -1,5 +1,14 @@
 .DS_Store
 Thumbs.db
+bin/
+obj/
+*.dll
+*.pdb
+*.exe
+*.deps.json
+*.runtimeconfig.json
+*.db
+*.sqlite
 
 
 # User-specific files
