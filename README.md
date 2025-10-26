@@ -1,30 +1,46 @@
-# FeedHorn - URL Response Monitoring
+# FeedHorn - URL & Network Monitoring Dashboard
 
-A web application for monitoring URL response times with real-time graphs and alerting. Built with ASP.NET Core for IIS deployment.
+A comprehensive monitoring application for tracking website performance, network speed, and SSL certificate expiration. Built with ASP.NET Core for Windows IIS deployment.
 
 ## Features
 
-- **URL Monitoring**: Add multiple URLs with friendly names for easy identification
-- **Automatic Checks**: Background service tests URLs every 5 minutes
-- **Response Time Graphs**: Visual representation of response times using Chart.js
-- **Smart Alerting**: URLs responding slower than average turn red automatically
-- **CRUD Operations**: Add, edit, and delete monitored URLs through an intuitive UI
-- **IIS Ready**: Configured for deployment on Windows IIS
+### URL Monitoring
+- **HTTP & Ping Checks**: Monitor websites via HTTP/HTTPS or ICMP ping
+- **Automatic Monitoring**: Background service checks URLs every 5 minutes
+- **Response Time Graphs**: Interactive charts with multiple time ranges (1d, 3d, 5d, 14d, 30d)
+- **Smart Alerting**: URLs responding slower than average are automatically highlighted
+- **Data Retention**: 60-day historical data with automatic cleanup
 
-## Prerequisites
+### Internet Speed Testing
+- **Ookla Integration**: Powered by official Speedtest CLI
+- **Hourly Testing**: Automatic speed tests every hour
+- **Manual Triggers**: Run tests on-demand
+- **Comprehensive Metrics**: Download, upload, ping, and jitter tracking
+- **Historical Charts**: Visualize speed trends over time
 
-- .NET 8.0 SDK or runtime
-- Windows Server with IIS (for production)
-- Visual Studio 2022 or VS Code (for development)
+### SSL Certificate Monitoring
+- **Certificate Tracking**: Monitor SSL certificate expiration dates
+- **Daily Checks**: Automatic certificate validation every 24 hours
+- **Expiration Alerts**: Visual warnings for certificates expiring within 30 days
+- **Certificate Details**: View issuer, validity dates, and subject information
+- **Manual Refresh**: Check certificates on-demand
+
+### UI/UX Features
+- **Dark Mode**: Toggle between light and dark themes (persists in localStorage)
+- **Print-Friendly**: Optimized layouts for printing reports
+- **Graph Customization**: Toggle data points on/off globally
+- **External Tools**: Quick links to network diagnostic tools
+- **Responsive Design**: Works on desktop, tablet, and mobile
 
 ## Quick Start
 
 ### Development
 
-1. **Restore packages and build**:
+1. **Clone and restore**:
    ```bash
+   git clone <repository-url>
+   cd FeedHorn
    dotnet restore
-   dotnet build
    ```
 
 2. **Run the application**:
@@ -35,122 +51,191 @@ A web application for monitoring URL response times with real-time graphs and al
 3. **Open your browser**:
    Navigate to `http://localhost:5000` or `https://localhost:5001`
 
-### IIS Deployment
+### Production Deployment
 
-1. **Publish the application**:
-   ```bash
-   dotnet publish -c Release -o ./publish
-   ```
+For detailed deployment instructions, see [docs/FRESH_INSTALL.md](docs/FRESH_INSTALL.md)
 
-2. **Configure IIS**:
-   - Open IIS Manager
-   - Create a new Application Pool with .NET CLR version "No Managed Code"
-   - Create a new website or application pointing to the `publish` folder
-   - Ensure the Application Pool identity has read/write permissions to the application folder
+**Quick deploy using provided scripts:**
 
-3. **Install ASP.NET Core Runtime**:
-   - Download and install the ASP.NET Core Runtime Hosting Bundle from Microsoft
-   - Restart IIS after installation
+```powershell
+# Fresh installation
+.\scripts\install-new-server.ps1
 
-4. **Browse to your site**:
-   The application will be available at your configured IIS URL
+# In-place update (preserves database)
+.\scripts\deploy-inplace.ps1
+```
+
+## Prerequisites
+
+- .NET 8.0 SDK or Runtime
+- Windows Server with IIS (for production)
+- Ookla Speedtest CLI (optional, for speed test feature)
+- SQLite3 (for database management)
 
 ## Project Structure
 
 ```
 FeedHorn/
 ├── Controllers/
-│   └── MonitoredUrlsController.cs    # API endpoints for URL management
+│   ├── MonitoredUrlsController.cs      # URL monitoring API
+│   ├── SpeedTestController.cs          # Speed test API
+│   └── SslCertificateController.cs     # SSL certificate API
 ├── Data/
-│   └── FeedHornContext.cs           # Entity Framework DbContext
+│   └── FeedHornContext.cs              # Entity Framework DbContext
 ├── Models/
-│   ├── MonitoredUrl.cs              # URL entity model
-│   └── UrlCheck.cs                  # Check result model
+│   ├── MonitoredUrl.cs                 # URL entity
+│   ├── UrlCheck.cs                     # Check result entity
+│   ├── SpeedTest.cs                    # Speed test entity
+│   └── SslCertificate.cs               # SSL certificate entity
 ├── Services/
-│   └── UrlMonitoringService.cs      # Background service for monitoring
+│   ├── UrlMonitoringService.cs         # URL monitoring background service
+│   ├── SpeedTestService.cs             # Speed test background service
+│   └── SslMonitoringService.cs         # SSL monitoring background service
 ├── wwwroot/
-│   ├── index.html                   # Main UI
-│   ├── styles.css                   # Styling
-│   ├── app.js                       # Frontend logic
-│   ├── logo.svg                     # FeedHorn logo
-│   └── favicon.svg                  # Favicon
-├── Program.cs                        # Application entry point
-├── web.config                        # IIS configuration
-└── FeedHorn.csproj                  # Project file
+│   ├── index.html                      # Main UI
+│   ├── styles.css                      # Styling (light/dark mode)
+│   ├── app.js                          # Frontend logic
+│   ├── logo.svg                        # FeedHorn logo
+│   └── favicon.svg                     # Favicon
+├── docs/
+│   ├── FRESH_INSTALL.md                # Fresh installation guide
+│   ├── DEPLOYMENT.md                   # Deployment documentation
+│   └── PING_UPDATE.md                  # Ping feature notes
+├── scripts/
+│   ├── install-new-server.ps1          # Fresh install script
+│   ├── deploy-inplace.ps1              # Update script
+│   ├── deploy.ps1                      # Legacy deployment
+│   └── fix-feedhorn.ps1                # Troubleshooting script
+├── add-speedtest-table.sql             # SQL migration for speed tests
+├── add-sslcertificates-table.sql       # SQL migration for SSL certs
+├── Program.cs                           # Application entry point
+├── web.config                           # IIS configuration
+└── FeedHorn.csproj                     # Project file
 ```
 
-## How It Works
+## Database Schema
 
-### Monitoring Process
+FeedHorn uses SQLite with the following tables:
 
-1. URLs are stored in a SQLite database (`feedhorn.db`)
-2. A background service (`UrlMonitoringService`) runs continuously
-3. Every 5 minutes, the service:
-   - Fetches all monitored URLs from the database
-   - Makes HTTP requests to each URL
-   - Records response time and status code
-   - Stores results in the database
-4. Old check results are automatically cleaned up (keeps last 100 per URL)
+- **MonitoredUrls**: URLs being monitored
+- **UrlChecks**: Historical check results
+- **SpeedTests**: Internet speed test results
+- **SslCertificates**: SSL certificate tracking
 
-### Smart Alerting
+### Adding Tables to Existing Database
 
-The UI automatically detects slow responses:
-- Calculates average response time for each URL
-- Marks a URL as "slow" if the latest response is 50% slower than average AND over 1000ms
-- Slow URLs get a red border and red graph line
-- Returns to normal appearance when response times improve
+If you're upgrading from a previous version:
 
-### API Endpoints
+```powershell
+# Add Speed Test table
+Get-Content add-speedtest-table.sql | sqlite3 feedhorn.db
 
-- `GET /api/monitoredurls` - Get all monitored URLs with recent checks
-- `GET /api/monitoredurls/{id}` - Get a specific URL
-- `POST /api/monitoredurls` - Add a new URL to monitor
-- `PUT /api/monitoredurls/{id}` - Update a monitored URL
-- `DELETE /api/monitoredurls/{id}` - Remove a URL from monitoring
+# Add SSL Certificate table
+Get-Content add-sslcertificates-table.sql | sqlite3 feedhorn.db
+```
+
+## API Endpoints
+
+### URL Monitoring
+- `GET /api/monitoredurls` - Get all monitored URLs
+- `GET /api/monitoredurls/{id}` - Get specific URL
+- `POST /api/monitoredurls` - Add new URL
+- `PUT /api/monitoredurls/{id}` - Update URL
+- `DELETE /api/monitoredurls/{id}` - Delete URL
+
+### Speed Tests
+- `GET /api/speedtest` - Get all speed test results
+- `GET /api/speedtest/{id}` - Get specific test
+- `POST /api/speedtest/run` - Run test now
+
+### SSL Certificates
+- `GET /api/sslcertificate` - Get all certificates
+- `GET /api/sslcertificate/{id}` - Get specific certificate
+- `POST /api/sslcertificate` - Add new certificate
+- `PUT /api/sslcertificate/{id}` - Update certificate
+- `DELETE /api/sslcertificate/{id}` - Delete certificate
+- `POST /api/sslcertificate/{id}/check` - Check certificate now
+
+## Background Services
+
+FeedHorn runs three background services:
+
+1. **UrlMonitoringService**: Checks URLs every 5 minutes
+2. **SpeedTestService**: Runs speed tests every hour (at :00)
+3. **SslMonitoringService**: Validates SSL certificates daily
+
+Services run continuously via IIS `AlwaysRunning` application pool mode.
 
 ## Configuration
 
-### Change Monitoring Interval
+### Change Monitoring Intervals
 
-Edit `Services/UrlMonitoringService.cs`, line with `TimeSpan.FromMinutes(5)`:
+Edit the respective service file:
 
 ```csharp
+// UrlMonitoringService.cs - Default: 5 minutes
 await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+
+// SpeedTestService.cs - Default: 1 hour (on the hour)
+var delay = nextHour - now;
+await Task.Delay(delay, stoppingToken);
+
+// SslMonitoringService.cs - Default: 24 hours
+await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
 ```
 
-### Change Database
+### Change Data Retention
 
-The application uses SQLite by default. To use SQL Server or another database:
+Default retention periods:
+- URL checks: 60 days
+- Speed tests: 60 days
+- SSL certificates: Kept indefinitely (manual cleanup required)
 
-1. Update the connection string in `Program.cs`
-2. Install appropriate Entity Framework provider
-3. Update `FeedHorn.csproj` with the new package reference
+Edit the cleanup logic in respective services to adjust retention.
 
 ## Troubleshooting
 
+### Speed Test Not Working
+
+1. Verify `speedtest.exe` is in `tools/` folder
+2. Check IIS application pool has execute permissions
+3. Review logs in IIS or Windows Event Viewer
+4. Run manual test via API: `POST /api/speedtest/run`
+
+### SSL Certificate Errors
+
+- Ensure URLs start with `https://`
+- Check server can reach destination (firewall rules)
+- Verify .NET can validate SSL certificates (certificate store issues)
+
 ### Database Issues
 
-If the database becomes corrupted, simply delete `feedhorn.db` and restart the application. It will create a new database automatically.
+If database is corrupted:
+```powershell
+# Backup existing
+Move-Item feedhorn.db feedhorn.db.bak
 
-### IIS Errors
+# Restart application - new DB will be created
+# Then run migration scripts
+```
 
-- **500.19 Error**: Check that the `web.config` is properly configured
-- **500.0 Error**: Ensure ASP.NET Core Runtime Hosting Bundle is installed
-- **Database Permission Issues**: Grant the Application Pool identity write access to the application folder
+### Background Services Not Running
 
-### Performance
+1. Verify IIS Application Pool settings:
+   - Start Mode: AlwaysRunning
+   - Idle Timeout: 0 (disabled)
+2. Check `web.config` has `hostingModel="inprocess"`
+3. Review Windows Event Viewer for errors
 
-For monitoring many URLs (50+), consider:
-- Increasing the monitoring interval
-- Reducing the number of checks stored per URL (modify cleanup logic)
-- Using a more robust database (SQL Server)
+For more troubleshooting, see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
 
 ## License
 
-This project is provided as-is for URL monitoring purposes.
+MIT License - see [LICENSE](LICENSE) file for details
 
 ## Credits
 
 - Built with ASP.NET Core 8.0
-- Charts powered by Chart.js
-- Icons from Heroicons
+- Charts powered by [Chart.js](https://www.chartjs.org/)
+- Icons from [Heroicons](https://heroicons.com/)
+- Speed tests via [Ookla Speedtest CLI](https://www.speedtest.net/apps/cli)
