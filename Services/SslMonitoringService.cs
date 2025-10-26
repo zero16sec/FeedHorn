@@ -75,7 +75,10 @@ public class SslMonitoringService : BackgroundService
             {
                 ServerCertificateCustomValidationCallback = (sender, c, chain, sslPolicyErrors) =>
                 {
-                    certificate = new X509Certificate2(c.GetRawCertData());
+                    if (c != null)
+                    {
+                        certificate = new X509Certificate2(c.GetRawCertData());
+                    }
                     return true; // Accept all certificates to capture info
                 }
             });

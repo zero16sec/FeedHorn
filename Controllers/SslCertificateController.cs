@@ -157,7 +157,10 @@ public class SslCertificateController : ControllerBase
             {
                 ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) =>
                 {
-                    certificate = new X509Certificate2(cert.GetRawCertData());
+                    if (cert != null)
+                    {
+                        certificate = new X509Certificate2(cert.GetRawCertData());
+                    }
                     return true; // Accept all certificates to capture info
                 }
             });
