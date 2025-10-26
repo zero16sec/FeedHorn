@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FeedHorn - URL Monitoring</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="stylesheet" href="/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Sticky Header with integrated tabs and controls -->
+    <header class="unified-header">
+        <div class="header-left">
+            <img src="/logo.svg" alt="FeedHorn Logo" class="compact-logo">
+            <h1 class="compact-title">FeedHorn</h1>
+        </div>
+
+        <nav class="header-tabs">
+            <button class="tab-btn active" data-tab="urlMonitoring">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+                </svg>
+                URL Monitoring
+            </button>
+            <button class="tab-btn" data-tab="speedTest">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                </svg>
+                Speed Test
+            </button>
+            <button class="tab-btn" data-tab="ssl">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+                SSL Certs
+            </button>
+            <button class="tab-btn" data-tab="tools">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z" />
+                </svg>
+                Tools
+            </button>
+        </nav>
+
+        <div class="header-controls">
+            <button id="darkModeBtn" class="btn-icon" title="Toggle dark mode" onclick="toggleDarkMode()">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                </svg>
+            </button>
+            <button id="toggleDotsBtn" class="btn-icon" title="Toggle graph dots" onclick="toggleGraphDots()">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5m.75-9l3-3 2.148 2.148A12.061 12.061 0 0116.5 7.605" />
+                </svg>
+            </button>
+            <button id="addUrlBtn" class="btn-icon btn-primary" title="Add New URL">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- URL Monitoring Tab Content -->
+        <main id="urlMonitoringTab" class="tab-content active">
+            <div id="urlList" class="url-list">
+                <!-- URL items will be dynamically added here -->
+            </div>
+
+            <div id="emptyState" class="empty-state">
+                <img src="/logo.svg" alt="FeedHorn" class="empty-logo">
+                <h2>No URLs Being Monitored</h2>
+                <p>Click "Add New URL" to start monitoring a website's response time</p>
+            </div>
+        </main>
+
+        <!-- Speed Test Tab Content -->
+        <main id="speedTestTab" class="tab-content">
+            <div id="speedTestContent">
+                <!-- Speed test content will be dynamically added here -->
+            </div>
+
+            <div id="speedTestEmpty" class="empty-state">
+                <svg class="empty-logo-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                </svg>
+                <h2>No Speed Tests Yet</h2>
+                <p>Speed tests run automatically every hour, or you can run one now!</p>
+                <button id="runTestBtnEmpty" class="btn btn-primary" onclick="runSpeedTestNow()" style="margin-top: 1.5rem;">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+                    </svg>
+                    Run Test Now
+                </button>
+            </div>
+        </main>
+
+        <!-- SSL Certificates Tab Content -->
+        <main id="sslTab" class="tab-content">
+            <div id="sslList" class="ssl-list">
+                <!-- SSL certificates will be dynamically added here -->
+            </div>
+
+            <div id="sslEmpty" class="empty-state">
+                <svg class="empty-logo-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+                <h2>No SSL Certificates Monitored</h2>
+                <p>Click "Add New URL" to start monitoring SSL certificate expiration</p>
+            </div>
+        </main>
+
+        <!-- Tools Tab Content -->
+        <main id="toolsTab" class="tab-content">
+            <div class="tools-grid">
+                <!-- Status/Uptime Tools -->
+                <div class="tool-category">
+                    <h2 class="category-title">Status & Uptime</h2>
+                    <div class="tool-links">
+                        <a href="https://downforeveryoneorjustme.com" target="_blank" rel="noopener noreferrer" class="tool-link">
+                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div>
+                                <div class="tool-name">Down For Everyone Or Just Me</div>
+                                <div class="tool-description">Check if a site is down for everyone</div>
+                            </div>
+                        </a>
+                        <a href="https://downdetector.com" target="_blank" rel="noopener noreferrer" class="tool-link">
+                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                            </svg>
+                            <div>
+                                <div class="tool-name">Downdetector</div>
+                                <div class="tool-description">Real-time outage monitoring</div>
+                            </div>
+                        </a>
+                        <a href="https://www.statusgator.com" target="_blank" rel="noopener noreferrer" class="tool-link">
+                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
+                            </svg>
+                            <div>
+                                <div class="tool-name">StatusGator</div>
+                                <div class="tool-description">Aggregate status pages</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Network & DNS Tools -->
+                <div class="tool-category">
+                    <h2 class="category-title">Network & DNS</h2>
+                    <div class="tool-links">
+                        <a href="https://dnschecker.org" target="_blank" rel="noopener noreferrer" class="tool-link">
+                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
+                            </svg>
+                            <div>
+                                <div class="tool-name">DNS Checker</div>
+                                <div class="tool-description">Global DNS propagation checker</div>
+                            </div>
+                        </a>
+                        <a href="https://www.whatsmydns.net" target="_blank" rel="noopener noreferrer" class="tool-link">
+                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3m-19.5 0a4.5 4.5 0 01.9-2.7L5.737 5.1a3.375 3.375 0 012.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 01.9 2.7m0 0a3 3 0 01-3 3m0 3h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008zm-3 6h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008z" />
+                            </svg>
+                            <div>
+                                <div class="tool-name">What's My DNS</div>
+                                <div class="tool-description">DNS propagation verification</div>
+                            </div>
+                        </a>
+                        <a href="https://mxtoolbox.com" target="_blank" rel="noopener noreferrer" class="tool-link">
+                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                            </svg>
+                            <div>
+                                <div class="tool-name">MX Toolbox</div>
+                                <div class="tool-description">Email & DNS diagnostics</div>
+                            </div>
+                        </a>
+                        <a href="https://ping.pe" target="_blank" rel="noopener noreferrer" class="tool-link">
+                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.348 14.651a3.75 3.75 0 010-5.303m5.304 0a3.75 3.75 0 010 5.303m-7.425 2.122a6.75 6.75 0 010-9.546m9.546 0a6.75 6.75 0 010 9.546M5.106 18.894c-3.808-3.808-3.808-9.98 0-13.789m13.788 0c3.808 3.808 3.808 9.981 0 13.79M12 12h.008v.007H12V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                            </svg>
+                            <div>
+                                <div class="tool-name">Ping.pe</div>
+                                <div class="tool-description">Multi-location ping test</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Performance Tools -->
+                <div class="tool-category">
+                    <h2 class="category-title">Performance Testing</h2>
+                    <div class="tool-links">
+                        <a href="https://www.webpagetest.org" target="_blank" rel="noopener noreferrer" class="tool-link">
+                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                            </svg>
+                            <div>
+                                <div class="tool-name">WebPageTest</div>
+                                <div class="tool-description">Detailed performance analysis</div>
+                            </div>
+                        </a>
+                        <a href="https://gtmetrix.com" target="_blank" rel="noopener noreferrer" class="tool-link">
+                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
+                            </svg>
+                            <div>
+                                <div class="tool-name">GTmetrix</div>
+                                <div class="tool-description">Page speed insights</div>
+                            </div>
+                        </a>
+                        <a href="https://tools.pingdom.com" target="_blank" rel="noopener noreferrer" class="tool-link">
+                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div>
+                                <div class="tool-name">Pingdom Tools</div>
+                                <div class="tool-description">Website speed test</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Security Tools -->
+                <div class="tool-category">
+                    <h2 class="category-title">Security & SSL</h2>
+                    <div class="tool-links">
+                        <a href="https://www.ssllabs.com/ssltest/" target="_blank" rel="noopener noreferrer" class="tool-link">
+                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                            </svg>
+                            <div>
+                                <div class="tool-name">SSL Labs</div>
+                                <div class="tool-description">SSL certificate checker</div>
+                            </div>
+                        </a>
+                        <a href="https://securityheaders.com" target="_blank" rel="noopener noreferrer" class="tool-link">
+                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                            </svg>
+                            <div>
+                                <div class="tool-name">Security Headers</div>
+                                <div class="tool-description">HTTP security header scanner</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for Add/Edit SSL Certificate -->
+    <div id="sslModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="sslModalTitle">Add SSL Certificate</h2>
+                <button class="close-btn" onclick="closeSslModal()">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <form id="sslForm">
+                <input type="hidden" id="sslId" value="">
+                <div class="form-group">
+                    <label for="sslFriendlyName">Friendly Name *</label>
+                    <input type="text" id="sslFriendlyName" required placeholder="e.g., Production Server">
+                </div>
+                <div class="form-group">
+                    <label for="sslUrl">HTTPS URL *</label>
+                    <input type="url" id="sslUrl" required placeholder="https://example.com">
+                    <small class="form-help">Must be an HTTPS URL to check SSL certificate</small>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeSslModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span id="sslSubmitText">Add Certificate</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Add/Edit URL -->
+    <div id="urlModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New URL</h2>
+                <button class="close-btn" onclick="closeModal()">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <form id="urlForm">
+                <input type="hidden" id="urlId" value="">
+                <div class="form-group">
+                    <label for="friendlyName">Friendly Name *</label>
+                    <input type="text" id="friendlyName" required placeholder="e.g., My Website">
+                </div>
+                <div class="form-group">
+                    <label for="checkType">Check Type *</label>
+                    <select id="checkType" required>
+                        <option value="0">HTTP/HTTPS Check</option>
+                        <option value="1">Ping Check</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="urlInput">
+                        <span id="urlLabel">URL *</span>
+                    </label>
+                    <input type="text" id="urlInput" required placeholder="https://example.com">
+                    <small id="urlHelp" class="form-help">Enter a valid HTTP/HTTPS URL</small>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span id="submitText">Add URL</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/app.js"></script>
+</body>
+</html>
