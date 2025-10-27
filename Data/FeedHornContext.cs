@@ -13,6 +13,8 @@ public class FeedHornContext : DbContext
     public DbSet<UrlCheck> UrlChecks { get; set; }
     public DbSet<SpeedTest> SpeedTests { get; set; }
     public DbSet<SslCertificate> SslCertificates { get; set; }
+    public DbSet<User> Users { get; set; }
+    public DbSet<PaloAltoFirewall> PaloAltoFirewalls { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -24,6 +26,10 @@ public class FeedHornContext : DbContext
 
         modelBuilder.Entity<MonitoredUrl>()
             .HasIndex(u => u.Url)
+            .IsUnique();
+
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.Username)
             .IsUnique();
     }
 }

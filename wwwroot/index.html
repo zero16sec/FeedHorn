@@ -35,6 +35,12 @@
                 </svg>
                 SSL Certs
             </button>
+            <button class="tab-btn" data-tab="firewall">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                </svg>
+                Firewall
+            </button>
             <button class="tab-btn" data-tab="tools">
                 <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z" />
@@ -44,6 +50,11 @@
         </nav>
 
         <div class="header-controls">
+            <button id="logoutBtn" class="btn-icon" title="Logout" onclick="logout()">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                </svg>
+            </button>
             <button id="darkModeBtn" class="btn-icon" title="Toggle dark mode" onclick="toggleDarkMode()">
                 <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
@@ -110,6 +121,101 @@
                 </svg>
                 <h2>No SSL Certificates Monitored</h2>
                 <p>Click "Add New URL" to start monitoring SSL certificate expiration</p>
+            </div>
+        </main>
+
+        <!-- Firewall Tab Content -->
+        <main id="firewallTab" class="tab-content">
+            <!-- Firewall Management Section -->
+            <div class="firewall-section">
+                <div class="section-header">
+                    <h2>Firewall Configuration</h2>
+                    <div class="firewall-controls">
+                        <select id="firewallSelect" class="firewall-dropdown">
+                            <option value="">Select a firewall...</option>
+                        </select>
+                        <button id="addFirewallBtn" class="btn btn-primary">
+                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Add Firewall
+                        </button>
+                    </div>
+                </div>
+
+                <div id="firewallInfo" class="firewall-info" style="display: none;">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Hostname:</span>
+                            <span id="fwHostname" class="info-value"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Model:</span>
+                            <span id="fwModel" class="info-value"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Serial:</span>
+                            <span id="fwSerial" class="info-value"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Version:</span>
+                            <span id="fwVersion" class="info-value"></span>
+                        </div>
+                    </div>
+                    <div class="firewall-actions">
+                        <button id="editFirewallBtn" class="btn btn-secondary">Edit</button>
+                        <button id="deleteFirewallBtn" class="btn btn-danger">Delete</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test URL Section -->
+            <div class="firewall-section">
+                <h2>Test URL Categorization</h2>
+                <form id="testUrlForm" class="firewall-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="testSourceIp">Source IP</label>
+                            <input type="text" id="testSourceIp" placeholder="10.0.0.100" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="testUrl">URL to Test</label>
+                            <input type="text" id="testUrl" placeholder="http://example.com" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Test</button>
+                    </div>
+                </form>
+                <div id="testUrlResults" style="display: none;"></div>
+            </div>
+
+            <!-- Query Logs Section -->
+            <div class="firewall-section">
+                <h2>Query Traffic Logs</h2>
+                <form id="queryLogsForm" class="firewall-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="querySourceIp">Source IP</label>
+                            <input type="text" id="querySourceIp" placeholder="10.0.0.100" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="queryDomain">Domain/URL (optional)</label>
+                            <input type="text" id="queryDomain" placeholder="example.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="queryTimeWindow">Time Window</label>
+                            <select id="queryTimeWindow">
+                                <option value="1">Last 1 hour</option>
+                                <option value="2">Last 2 hours</option>
+                                <option value="3">Last 3 hours</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Query</button>
+                    </div>
+                </form>
+                <div id="queryLogsResults" style="display: none;">
+                    <div id="dnsResolutionInfo" class="dns-info" style="display: none;"></div>
+                    <div id="logsTableContainer"></div>
+                </div>
             </div>
         </main>
 
@@ -510,6 +616,49 @@
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
                     <button type="submit" class="btn btn-primary">
                         <span id="submitText">Add URL</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firewall Modal -->
+    <div id="firewallModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="firewallModalTitle">Add Firewall</h2>
+                <button class="close-btn" onclick="closeFirewallModal()">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <form id="firewallForm">
+                <input type="hidden" id="firewallId" value="">
+                <div class="form-group">
+                    <label for="firewallFriendlyName">Friendly Name *</label>
+                    <input type="text" id="firewallFriendlyName" required placeholder="e.g., Main Firewall">
+                </div>
+                <div class="form-group">
+                    <label for="firewallHostname">Firewall IP/Hostname *</label>
+                    <input type="text" id="firewallHostname" required placeholder="e.g., 192.168.1.1">
+                    <small class="form-help">Management interface IP or hostname</small>
+                </div>
+                <div class="form-group">
+                    <label for="firewallUsername">Username *</label>
+                    <input type="text" id="firewallUsername" required placeholder="admin" autocomplete="off">
+                    <small class="form-help">Admin account with API access</small>
+                </div>
+                <div class="form-group">
+                    <label for="firewallPassword">Password *</label>
+                    <input type="password" id="firewallPassword" required autocomplete="new-password">
+                    <small class="form-help">Password will not be stored</small>
+                </div>
+                <div id="firewallFormError" class="error-message" style="display: none;"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeFirewallModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span id="firewallSubmitText">Add Firewall</span>
                     </button>
                 </div>
             </form>

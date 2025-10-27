@@ -13,6 +13,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDbContext<FeedHornContext>(options =>
     options.UseSqlite("Data Source=feedhorn.db"));
 
+// Add authentication and encryption services
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<EncryptionService>();
+builder.Services.AddScoped<PaloAltoService>();
+builder.Services.AddDataProtection();
+
 // Add background monitoring services
 builder.Services.AddHostedService<UrlMonitoringService>();
 builder.Services.AddHostedService<SpeedTestService>();
@@ -32,16 +38,22 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Ensure database is created
+// Ensure database is created and default user exists
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<FeedHornContext>();
     db.Database.EnsureCreated();
+
+    var authService = scope.ServiceProvider.GetRequiredService<AuthService>();
+    await authService.EnsureDefaultUserExists();
 }
 
 // Inject footer into HTML responses (compiled into DLL)
 // MUST be before UseStaticFiles to intercept the response
 app.UseMiddleware<FooterInjectionMiddleware>();
+
+// Authentication middleware - protect all routes except login
+app.UseMiddleware<AuthenticationMiddleware>();
 
 app.UseDefaultFiles();
 app.UseStaticFiles();

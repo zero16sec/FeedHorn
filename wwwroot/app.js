@@ -533,6 +533,8 @@ function switchTab(tabName) {
         loadSpeedTests();
     } else if (tabName === 'ssl' && sslData.length === 0) {
         loadSslCertificates();
+    } else if (tabName === 'firewall') {
+        loadFirewalls();
     }
 }
 
@@ -1233,3 +1235,365 @@ document.getElementById('sslModal').addEventListener('click', (e) => {
         closeSslModal();
     }
 });
+
+// Logout function
+async function logout() {
+    try {
+        await fetch('/api/auth/logout', { method: 'POST' });
+        window.location.href = '/login.html';
+    } catch (error) {
+        console.error('Logout error:', error);
+        window.location.href = '/login.html';
+    }
+}
+
+// ============================================
+// FIREWALL TAB FUNCTIONALITY
+// ============================================
+
+let selectedFirewall = null;
+
+// Load firewalls on page load
+async function loadFirewalls() {
+    try {
+        const response = await fetch('/api/firewall');
+        if (!response.ok) throw new Error('Failed to load firewalls');
+
+        const firewalls = await response.json();
+        const select = document.getElementById('firewallSelect');
+
+        // Clear existing options except first
+        select.innerHTML = '<option value="">Select a firewall...</option>';
+
+        firewalls.forEach(fw => {
+            const option = document.createElement('option');
+            option.value = fw.id;
+            option.textContent = fw.friendlyName;
+            select.appendChild(option);
+        });
+
+        // If we had a selected firewall, try to reselect it
+        if (selectedFirewall) {
+            select.value = selectedFirewall.id;
+            showFirewallInfo(selectedFirewall);
+        }
+    } catch (error) {
+        console.error('Error loading firewalls:', error);
+    }
+}
+
+// Firewall selection changed
+document.getElementById('firewallSelect').addEventListener('change', async (e) => {
+    const firewallId = e.target.value;
+    if (!firewallId) {
+        selectedFirewall = null;
+        document.getElementById('firewallInfo').style.display = 'none';
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/firewall/${firewallId}`);
+        if (!response.ok) throw new Error('Failed to load firewall');
+
+        selectedFirewall = await response.json();
+        showFirewallInfo(selectedFirewall);
+    } catch (error) {
+        console.error('Error loading firewall:', error);
+        alert('Error loading firewall details');
+    }
+});
+
+function showFirewallInfo(firewall) {
+    document.getElementById('fwHostname').textContent = firewall.firewallHostname || 'N/A';
+    document.getElementById('fwModel').textContent = firewall.model || 'N/A';
+    document.getElementById('fwSerial').textContent = firewall.serialNumber || 'N/A';
+    document.getElementById('fwVersion').textContent = firewall.softwareVersion || 'N/A';
+    document.getElementById('firewallInfo').style.display = 'block';
+}
+
+// Add Firewall button
+document.getElementById('addFirewallBtn').addEventListener('click', () => {
+    document.getElementById('firewallModalTitle').textContent = 'Add Firewall';
+    document.getElementById('firewallSubmitText').textContent = 'Add Firewall';
+    document.getElementById('firewallId').value = '';
+    document.getElementById('firewallForm').reset();
+    document.getElementById('firewallFormError').style.display = 'none';
+    document.getElementById('firewallModal').classList.add('show');
+});
+
+// Edit Firewall button
+document.getElementById('editFirewallBtn').addEventListener('click', () => {
+    if (!selectedFirewall) return;
+
+    document.getElementById('firewallModalTitle').textContent = 'Edit Firewall';
+    document.getElementById('firewallSubmitText').textContent = 'Update Firewall';
+    document.getElementById('firewallId').value = selectedFirewall.id;
+    document.getElementById('firewallFriendlyName').value = selectedFirewall.friendlyName;
+    document.getElementById('firewallHostname').value = selectedFirewall.hostname;
+    document.getElementById('firewallUsername').value = '';
+    document.getElementById('firewallPassword').value = '';
+    document.getElementById('firewallFormError').style.display = 'none';
+    document.getElementById('firewallModal').classList.add('show');
+});
+
+// Delete Firewall button
+document.getElementById('deleteFirewallBtn').addEventListener('click', async () => {
+    if (!selectedFirewall) return;
+
+    if (!confirm(`Are you sure you want to delete "${selectedFirewall.friendlyName}"?`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/firewall/${selectedFirewall.id}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) throw new Error('Failed to delete firewall');
+
+        selectedFirewall = null;
+        await loadFirewalls();
+        document.getElementById('firewallInfo').style.display = 'none';
+    } catch (error) {
+        console.error('Error deleting firewall:', error);
+        alert('Error deleting firewall');
+    }
+});
+
+// Firewall form submit
+document.getElementById('firewallForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const firewallId = document.getElementById('firewallId').value;
+    const isEdit = !!firewallId;
+
+    const data = {
+        friendlyName: document.getElementById('firewallFriendlyName').value,
+        hostname: document.getElementById('firewallHostname').value,
+        username: document.getElementById('firewallUsername').value,
+        password: document.getElementById('firewallPassword').value
+    };
+
+    const errorDiv = document.getElementById('firewallFormError');
+    errorDiv.style.display = 'none';
+
+    try {
+        const url = isEdit ? `/api/firewall/${firewallId}` : '/api/firewall';
+        const method = isEdit ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to save firewall');
+        }
+
+        if (!isEdit) {
+            const newFirewall = await response.json();
+            selectedFirewall = newFirewall;
+        }
+
+        await loadFirewalls();
+        closeFirewallModal();
+
+        if (selectedFirewall) {
+            document.getElementById('firewallSelect').value = selectedFirewall.id;
+            showFirewallInfo(selectedFirewall);
+        }
+    } catch (error) {
+        console.error('Error saving firewall:', error);
+        errorDiv.textContent = error.message;
+        errorDiv.style.display = 'block';
+    }
+});
+
+function closeFirewallModal() {
+    document.getElementById('firewallModal').classList.remove('show');
+}
+
+// Close modal when clicking outside
+document.getElementById('firewallModal').addEventListener('click', (e) => {
+    if (e.target.id === 'firewallModal') {
+        closeFirewallModal();
+    }
+});
+
+// Test URL form
+document.getElementById('testUrlForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (!selectedFirewall) {
+        alert('Please select a firewall first');
+        return;
+    }
+
+    const sourceIp = document.getElementById('testSourceIp').value;
+    const url = document.getElementById('testUrl').value;
+
+    const resultsDiv = document.getElementById('testUrlResults');
+    resultsDiv.innerHTML = '<div class="loading">Testing URL...</div>';
+    resultsDiv.style.display = 'block';
+
+    try {
+        const response = await fetch(`/api/firewall/${selectedFirewall.id}/test-url`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sourceIp, url })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Test failed');
+        }
+
+        const result = await response.json();
+
+        resultsDiv.innerHTML = `
+            <div class="test-result">
+                <h3>Test Result</h3>
+                <div class="result-grid">
+                    <div class="result-item">
+                        <span class="result-label">URL:</span>
+                        <span class="result-value">${escapeHtml(result.url)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Source IP:</span>
+                        <span class="result-value">${escapeHtml(result.sourceIp)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Category:</span>
+                        <span class="result-value result-category">${escapeHtml(result.category)}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        console.error('Error testing URL:', error);
+        resultsDiv.innerHTML = `<div class="error-message show">${escapeHtml(error.message)}</div>`;
+    }
+});
+
+// Query Logs form
+document.getElementById('queryLogsForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (!selectedFirewall) {
+        alert('Please select a firewall first');
+        return;
+    }
+
+    const sourceIp = document.getElementById('querySourceIp').value;
+    const domain = document.getElementById('queryDomain').value;
+    const hoursAgo = parseInt(document.getElementById('queryTimeWindow').value);
+
+    const resultsDiv = document.getElementById('queryLogsResults');
+    const dnsInfoDiv = document.getElementById('dnsResolutionInfo');
+    const tableDiv = document.getElementById('logsTableContainer');
+
+    resultsDiv.style.display = 'block';
+    dnsInfoDiv.style.display = 'none';
+    tableDiv.innerHTML = '<div class="loading">Querying logs...</div>';
+
+    try {
+        const response = await fetch(`/api/firewall/${selectedFirewall.id}/query-logs`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sourceIp, domain, hoursAgo })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Query failed');
+        }
+
+        const result = await response.json();
+
+        // Show DNS resolution info if domain was provided
+        if (domain && result.dnsResolution) {
+            const dns = result.dnsResolution;
+            let dnsHtml = `<div class="dns-resolution"><strong>DNS Resolution for ${escapeHtml(domain)}:</strong> `;
+
+            if (dns.isSinkhole) {
+                dnsHtml += `<span class="sinkhole-warning">⚠️ Sinkholed to ${escapeHtml(dns.resolvedName)}</span>`;
+            } else if (dns.resolvedIps && dns.resolvedIps.length > 0) {
+                dnsHtml += `<span class="resolved-ips">${dns.resolvedIps.map(ip => escapeHtml(ip)).join(', ')}</span>`;
+            } else {
+                dnsHtml += `<span class="dns-error">Unable to resolve</span>`;
+            }
+
+            dnsHtml += '</div>';
+            dnsInfoDiv.innerHTML = dnsHtml;
+            dnsInfoDiv.style.display = 'block';
+        }
+
+        // Show logs table
+        if (result.logs && result.logs.length > 0) {
+            let tableHtml = `
+                <div class="logs-table-wrapper">
+                    <table class="logs-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Source IP</th>
+                                <th>Dest IP</th>
+                                <th>Dest Port</th>
+                                <th>App</th>
+                                <th>Action</th>
+                                <th>End Reason</th>
+                                <th>Bytes</th>
+                                <th>Sent</th>
+                                <th>Received</th>
+                                <th>Category</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            result.logs.forEach(log => {
+                const actionClass = log.action === 'allow' ? 'action-allow' : 'action-deny';
+                tableHtml += `
+                    <tr>
+                        <td>${escapeHtml(log.timeGenerated)}</td>
+                        <td>${escapeHtml(log.sourceIp)}</td>
+                        <td>${escapeHtml(log.destinationIp)}</td>
+                        <td>${escapeHtml(log.destinationPort)}</td>
+                        <td>${escapeHtml(log.application)}</td>
+                        <td class="${actionClass}">${escapeHtml(log.action)}</td>
+                        <td>${escapeHtml(log.sessionEndReason)}</td>
+                        <td>${formatBytes(log.bytes)}</td>
+                        <td>${formatBytes(log.bytesSent)}</td>
+                        <td>${formatBytes(log.bytesReceived)}</td>
+                        <td>${escapeHtml(log.category || 'N/A')}</td>
+                    </tr>
+                `;
+            });
+
+            tableHtml += `
+                        </tbody>
+                    </table>
+                </div>
+                <div class="logs-summary">Found ${result.logs.length} log entries</div>
+            `;
+
+            tableDiv.innerHTML = tableHtml;
+        } else {
+            tableDiv.innerHTML = '<div class="empty-state"><p>No log entries found</p></div>';
+        }
+    } catch (error) {
+        console.error('Error querying logs:', error);
+        tableDiv.innerHTML = `<div class="error-message show">${escapeHtml(error.message)}</div>`;
+    }
+});
+
+function formatBytes(bytes) {
+    const num = parseInt(bytes);
+    if (isNaN(num) || num === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(num) / Math.log(k));
+    return Math.round(num / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
