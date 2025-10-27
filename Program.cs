@@ -1,4 +1,5 @@
 using FeedHorn.Data;
+using FeedHorn.Middleware;
 using FeedHorn.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -40,6 +41,10 @@ using (var scope = app.Services.CreateScope())
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
+
+// Inject footer into HTML responses (compiled into DLL)
+app.UseMiddleware<FooterInjectionMiddleware>();
+
 app.UseCors();
 app.UseAuthorization();
 app.MapControllers();
