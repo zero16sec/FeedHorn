@@ -24,12 +24,20 @@ A comprehensive monitoring application for tracking website performance, network
 - **Expiration Alerts**: Visual warnings for certificates expiring within 30 days
 - **Certificate Details**: View issuer, validity dates, and subject information
 - **Manual Refresh**: Check certificates on-demand
+- **Horizontal Layout**: Clean, card-based display with at-a-glance status
 
 ### UI/UX Features
 - **Dark Mode**: Toggle between light and dark themes (persists in localStorage)
-- **Print-Friendly**: Optimized layouts for printing reports
+- **Print-Friendly**: Optimized layouts for printing reports across all tabs
 - **Graph Customization**: Toggle data points on/off globally
-- **External Tools**: Quick links to network diagnostic tools
+- **External Tools**: 23+ diagnostic tools across 9 categories:
+  - Security & SSL (SSL Labs, Qualys, DNSSEC Debugger, Sucuri)
+  - DNS & Domain (DNSChecker, MXToolbox, WhatsMyDNS, WHOIS)
+  - HTTP & API Diagnostics (HTTPStatus.io, Hoppscotch, RequestBin)
+  - Network & Latency (Traceroute.org, Fast.com, Cloudflare Radar)
+  - Website Analytics & SEO (PageSpeed Insights, BuiltWith)
+  - Infrastructure Monitoring (UptimeRobot, HetrixTools, Better Stack)
+  - Developer Utilities (JSONLint, RegEx101, JWT.io, Crontab Guru)
 - **Responsive Design**: Works on desktop, tablet, and mobile
 
 ## Quick Start
@@ -82,6 +90,8 @@ FeedHorn/
 │   └── SslCertificateController.cs     # SSL certificate API
 ├── Data/
 │   └── FeedHornContext.cs              # Entity Framework DbContext
+├── Middleware/
+│   └── FooterInjectionMiddleware.cs    # Server-side footer injection
 ├── Models/
 │   ├── MonitoredUrl.cs                 # URL entity
 │   ├── UrlCheck.cs                     # Check result entity
@@ -92,8 +102,8 @@ FeedHorn/
 │   ├── SpeedTestService.cs             # Speed test background service
 │   └── SslMonitoringService.cs         # SSL monitoring background service
 ├── wwwroot/
-│   ├── index.html                      # Main UI
-│   ├── styles.css                      # Styling (light/dark mode)
+│   ├── index.html                      # Main UI with 23+ external tool links
+│   ├── styles.css                      # Styling (light/dark mode, print)
 │   ├── app.js                          # Frontend logic
 │   ├── logo.svg                        # FeedHorn logo
 │   └── favicon.svg                     # Favicon
@@ -192,6 +202,49 @@ Default retention periods:
 - SSL certificates: Kept indefinitely (manual cleanup required)
 
 Edit the cleanup logic in respective services to adjust retention.
+
+## External Tools Integration
+
+The **Tools** tab provides quick access to 23+ popular diagnostic and monitoring tools across 9 categories:
+
+### Security & SSL Tools
+- **SSL Labs** - Comprehensive SSL/TLS testing
+- **Qualys SSL Server Test** - SSL configuration analysis
+- **DNSSEC Debugger** - DNS security validation
+- **Sucuri SiteCheck** - Website security scanner
+
+### DNS & Domain Tools
+- **DNSChecker** - Global DNS propagation checker
+- **MXToolbox** - Email, DNS, and network diagnostics
+- **WhatsMyDNS** - DNS propagation worldwide
+- **WHOIS Lookup** - Domain registration information
+
+### HTTP & API Diagnostics
+- **HTTPStatus.io** - HTTP response testing
+- **Hoppscotch** - API development platform
+- **RequestBin** - Webhook and HTTP request inspection
+
+### Network & Latency Tools
+- **Traceroute.org** - Network path analysis
+- **Fast.com** - Netflix speed test
+- **Cloudflare Radar** - Internet traffic insights
+
+### Website Analytics & SEO
+- **PageSpeed Insights** - Google performance analysis
+- **BuiltWith** - Technology profiler
+
+### Infrastructure Monitoring
+- **UptimeRobot** - Website uptime monitoring
+- **HetrixTools** - Server monitoring
+- **Better Stack** - Modern monitoring platform
+
+### Developer Utilities
+- **JSONLint** - JSON validator
+- **RegEx101** - Regular expression tester
+- **JWT.io** - JSON Web Token debugger
+- **Crontab Guru** - Cron schedule expressions
+
+All tools open in new tabs for convenient side-by-side comparison with FeedHorn monitoring data.
 
 ## Troubleshooting
 
