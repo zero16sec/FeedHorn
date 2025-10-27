@@ -39,12 +39,12 @@ using (var scope = app.Services.CreateScope())
     db.Database.EnsureCreated();
 }
 
-app.UseDefaultFiles();
-app.UseStaticFiles();
-
 // Inject footer into HTML responses (compiled into DLL)
+// MUST be before UseStaticFiles to intercept the response
 app.UseMiddleware<FooterInjectionMiddleware>();
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
 app.UseCors();
 app.UseAuthorization();
 app.MapControllers();
