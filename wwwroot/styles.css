@@ -51,6 +51,50 @@ body.dark-mode .icon-btn:hover {
     background-color: #3a3f4b;
 }
 
+/* Footer - Protected */
+.app-footer {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background-color: rgba(44, 62, 80, 0.95) !important;
+    color: #ecf0f1 !important;
+    text-align: center !important;
+    padding: 0.4rem 1rem !important;
+    font-size: 0.75rem !important;
+    z-index: 9999 !important;
+    box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.1) !important;
+    border-top: 1px solid rgba(52, 73, 94, 0.5) !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    user-select: none !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+}
+
+.app-footer a {
+    color: #3498db !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+    pointer-events: auto !important;
+}
+
+.app-footer a:hover {
+    color: #5dade2 !important;
+    text-decoration: underline !important;
+}
+
+body.dark-mode .app-footer {
+    background-color: rgba(26, 29, 35, 0.95) !important;
+    border-top-color: rgba(45, 49, 57, 0.5) !important;
+}
+
+body {
+    padding-bottom: 2rem !important;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -62,7 +106,7 @@ body {
     background-color: var(--bg-color);
     color: var(--text-primary);
     line-height: 1.6;
-    padding-top: 60px; /* Space for fixed header */
+    padding-top: 60px !important; /* Space for fixed header */
 }
 
 .container {
@@ -684,7 +728,13 @@ form {
 /* Responsive */
 @media (max-width: 768px) {
     body {
-        padding-top: 120px; /* More space for wrapped header on mobile */
+        padding-top: 120px !important; /* More space for wrapped header on mobile */
+        padding-bottom: 2.5rem !important;
+    }
+
+    .app-footer {
+        font-size: 0.7rem !important;
+        padding: 0.35rem 0.5rem !important;
     }
 
     .unified-header {
@@ -896,8 +946,17 @@ form {
         display: none !important;
     }
 
+    /* Keep footer visible in print */
+    .app-footer {
+        position: fixed !important;
+        bottom: 0 !important;
+        display: block !important;
+        page-break-after: avoid !important;
+    }
+
     body {
-        padding-top: 0;
+        padding-top: 0 !important;
+        padding-bottom: 2rem !important;
         background: white;
         color: black;
     }
