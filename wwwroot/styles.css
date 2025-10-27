@@ -730,9 +730,9 @@ form {
 
 /* SSL Certificate Styles */
 .ssl-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .ssl-card {
@@ -742,6 +742,9 @@ form {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
     border-left: 4px solid var(--success-color);
+    display: flex;
+    align-items: center;
+    gap: 2rem;
 }
 
 .ssl-card.expiring-soon {
@@ -760,17 +763,16 @@ form {
 }
 
 .ssl-header {
+    flex: 1;
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 .ssl-title {
     font-size: 1.2rem;
     font-weight: 700;
     color: var(--text-primary);
-    margin-bottom: 0.25rem;
 }
 
 .ssl-url {
@@ -782,30 +784,27 @@ form {
 .ssl-actions {
     display: flex;
     gap: 0.5rem;
+    flex-shrink: 0;
 }
 
 .ssl-info {
     display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+    gap: 2rem;
+    flex-wrap: wrap;
 }
 
-.ssl-info-row {
+.ssl-info-item {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.ssl-info-row:last-child {
-    border-bottom: none;
+    flex-direction: column;
+    gap: 0.25rem;
 }
 
 .ssl-label {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     color: var(--text-secondary);
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .ssl-value {
@@ -840,13 +839,18 @@ form {
 }
 
 .days-badge {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 700;
     text-align: center;
-    padding: 1rem;
+    padding: 1rem 1.5rem;
     border-radius: 8px;
     background: var(--bg-color);
-    margin: 0.75rem 0;
+    flex-shrink: 0;
+    min-width: 140px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .days-badge.valid {
@@ -859,6 +863,20 @@ form {
 
 .days-badge.expired {
     color: var(--danger-color);
+}
+
+.days-number {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.days-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.8;
+    margin-top: 0.25rem;
 }
 
 /* Print Styles */
@@ -954,19 +972,30 @@ form {
 
     /* SSL certificate print styles */
     .ssl-list {
-        grid-template-columns: repeat(2, 1fr);
         gap: 0.5rem;
     }
 
-    .ssl-info-row {
-        padding: 0.25rem 0;
+    .ssl-card {
+        padding: 0.75rem;
+        gap: 1rem;
+    }
+
+    .ssl-info {
+        gap: 1rem;
         font-size: 0.85rem;
     }
 
     .days-badge {
-        font-size: 1.2rem;
+        min-width: 80px;
         padding: 0.5rem;
-        margin: 0.5rem 0;
+    }
+
+    .days-number {
+        font-size: 1.5rem;
+    }
+
+    .days-label {
+        font-size: 0.65rem;
     }
 
     /* Page title */
