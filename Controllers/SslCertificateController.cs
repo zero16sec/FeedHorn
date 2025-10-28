@@ -23,9 +23,20 @@ public class SslCertificateController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<SslCertificate>>> GetAll()
     {
-        return await _context.SslCertificates
+        var certificates = await _context.SslCertificates
             .OrderBy(c => c.DaysUntilExpiration)
             .ToListAsync();
+
+        // Recalculate days until expiration dynamically for accurate display
+        foreach (var cert in certificates)
+        {
+            if (cert.ValidTo != default)
+            {
+                cert.DaysUntilExpiration = (cert.ValidTo - DateTime.UtcNow).Days;
+            }
+        }
+
+        return certificates;
     }
 
     [HttpGet("{id}")]
@@ -36,6 +47,13 @@ public class SslCertificateController : ControllerBase
         {
             return NotFound();
         }
+
+        // Recalculate days until expiration dynamically for accurate display
+        if (cert.ValidTo != default)
+        {
+            cert.DaysUntilExpiration = (cert.ValidTo - DateTime.UtcNow).Days;
+        }
+
         return cert;
     }
 
@@ -139,6 +157,12 @@ public class SslCertificateController : ControllerBase
 
         await UpdateCertificateInfo(cert);
         await _context.SaveChangesAsync();
+
+        // Recalculate days until expiration dynamically for accurate display
+        if (cert.ValidTo != default)
+        {
+            cert.DaysUntilExpiration = (cert.ValidTo - DateTime.UtcNow).Days;
+        }
 
         return cert;
     }
